@@ -7,13 +7,21 @@ task success and policy compliance in back-office agents. Keep the exact researc
 question in the README and research brief. Treat effects of efficiency incentives
 neutrally; no first task, reward formula, task schema or experiment size is chosen.
 
-The current milestone is installation and documentation only. Do not implement
-tasks, environments, datasets, agents, tool integrations, rewards, verifiers,
-training loops, dashboards or a Harbor–Inspect bridge. Harbor's built-in Terminus 2
-is the prospective harness. Do not run model calls, upstream demos, evaluations,
-paid services or training; do not download datasets/model weights or provision
-GPUs/cloud sandboxes. Defer Miles, SGLang, Megatron and PyTorch until a validated
-task and training budget. Read current official framework docs before using APIs.
+The current milestone is dependency installation, installation checks and
+architecture documentation only. The published `inspect-harbor` integration is
+installed alongside Harbor and Inspect. Do not implement tasks, environments,
+datasets, agents, business tool integrations, rewards, verifiers, training loops,
+dashboards, evaluation wrappers or a custom bridge/agent adapter. Harbor's built-in
+Terminus 2 is the prospective native harness; the bridge defaults to ReAct.
+Do not run model calls, upstream demos, evaluations, paid services or training;
+do not download datasets/model weights or provision GPUs/cloud sandboxes. Defer
+Miles, SGLang, Megatron and PyTorch until a validated task and training budget.
+Read current official framework docs before using APIs.
+
+Keep future canonical Harbor tasks in `tasks/` and thin Inspect entry points,
+suite configuration and additional evaluations in `evals/`. Reuse task definitions
+and simulation code. Each run has one runner; Inspect does not launch the native
+Harbor CLI or inherit its agent configuration. Follow `docs/architecture.md`.
 
 ## Commands and reproducibility
 
@@ -26,10 +34,13 @@ bash scripts/check.sh
 
 Setup uses pinned uv and managed Python 3.12 without changing system Python.
 Routine setup and CI must use `uv sync --locked`; checks must work offline after
-installation without credentials, Docker or GPUs. Keep direct pins, the uv pin
-in `scripts/_common.sh`, `tool.uv.required-version`, `.python-version`, documentation
-and `uv.lock` consistent when intentionally upgrading. Only an intentional
-dependency update may regenerate the lock. Do not add cloud or training extras.
+installation without credentials, Docker or GPUs. Doctor checks exact package
+versions against `uv.lock`, public bridge imports and Inspect plugin metadata;
+never invoke task, scorer or solver factories as installation checks. Keep direct
+dependency constraints, the uv pin in `scripts/_common.sh`,
+`tool.uv.required-version`, `.python-version`, documentation and `uv.lock`
+consistent when intentionally upgrading. Only an intentional dependency update
+may regenerate the lock. Do not add cloud or training extras.
 
 pytest is configured for future substantive tests in `tests/`; run
 `.venv/bin/python -m pytest` once those exist. Do not add meaningless tests or

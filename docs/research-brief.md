@@ -19,15 +19,24 @@ business rules, permissions and approval requirements.
 | Component | Role in later experiments |
 | --- | --- |
 | Environment | Holds business state, exposes permitted actions and records their effects. Harbor is the main environment and evaluation foundation. |
-| Agent | Uses a model and a harness to choose and execute actions. Harbor's built-in Terminus 2 integration is the prospective harness; no agent is being implemented or vendored. |
+| Agent | Uses a model and a harness to choose and execute actions. Harbor's built-in Terminus 2 integration is the prospective native harness; no agent is being implemented or vendored. |
 | Verifier | Independently checks actual state changes and relevant actions against task requirements and business policies. |
-| Evaluation | Runs specified conditions and aggregates outcomes, resource use and uncertainty. Inspect is separately available for future evaluation work; no Harbor–Inspect integration is planned for this milestone. |
+| Evaluation | Runs specified conditions and aggregates outcomes, resource use and uncertainty. Native Harbor supports task development and experiments; Inspect is the intended primary runner for suites and checkpoint comparisons using shared tasks through `inspect-harbor`. |
 | RL training | Updates model parameters using feedback from rollouts. It is a later intervention, distinct from measuring an existing model. |
 
-This bootstrap installs tools and documents the research plan. It performs no
-training, evaluations or model calls. It implements no tasks, simulated systems,
-datasets, agents, integrations, rewards, verifiers, training loops or dashboards.
-No task schema, reward formula, experiment size or first task has been chosen.
+This milestone installs tools, including the existing `inspect-harbor` bridge,
+and documents the research plan. It performs no training, evaluations or model
+calls. It implements no tasks, simulated systems, datasets, agents, custom
+integrations, rewards, verifiers, training loops or dashboards. No task schema,
+reward formula, experiment size or first task has been chosen.
+
+The [architecture](architecture.md) describes one canonical task definition and
+two execution paths; no duplicate simulator is planned. A run uses one runner.
+The bridge's default ReAct harness differs from native Harbor's prospective
+Terminus 2 harness, so shared tasks alone do not make comparisons equivalent.
+Reusing the Harbor verifier through Inspect also does not establish independent
+safety validation: held-out cases and additional checks must test weaknesses in
+the reward or verifier.
 
 Only public material and, eventually, synthetic examples belong here. Real company
 SOPs, customer records, private business information and production credentials
@@ -52,6 +61,9 @@ the documentation implies no company partnership or course affiliation.
 - Comparisons between different models provide baselines but cannot isolate the
   causal effect of an efficiency incentive. A later causal RL study should use
   matched training conditions from the same base model while varying the incentive.
+- Keep agent, tools, prompts, sampling and relevant limits fixed within checkpoint
+  comparisons. Record harness changes explicitly, and retain errors and incomplete
+  attempts in the accounting even when an accuracy calculation excludes them.
 
 ## Prospective training path
 

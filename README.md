@@ -17,13 +17,18 @@ partnerships or course affiliation are claimed.
 ## Current capabilities
 
 This milestone provides a locked Python environment, installation checks,
-Conductor actions, Linux CI and a research plan. Harbor is the primary environment
-and evaluation foundation, with its built-in Terminus 2 integration as the
-prospective agent harness. Inspect is installed separately for future evaluations.
+Conductor actions, Linux CI and a research plan. Harbor-format tasks will be the
+canonical workflow definitions. Native Harbor will support task development,
+validation and experiments, with Terminus 2 as its prospective harness.
+`inspect-harbor` is installed so Inspect can use the same definitions as our
+primary runner for evaluation suites, checkpoint comparisons, logs and analysis.
+See the [shared evaluation architecture](docs/architecture.md) for the two paths,
+their agent differences and a documentation-only local-task example.
 
-There are no tasks, simulated systems, datasets, agents, tool integrations,
-rewards, verifiers, training loops, dashboards or Harbor–Inspect integration.
-Installation readiness does not establish end-to-end evaluation capability.
+There are no research tasks, simulated systems, datasets, custom agents, business
+tool integrations, rewards, verifiers, training loops or dashboards. The bridge's
+package and plugin are checked; no Harbor task has been evaluated end to end.
+Installation readiness does not validate the architecture experimentally.
 
 ## Setup and checks
 
@@ -44,9 +49,13 @@ rerun setup if its tools or caches are removed.
 
 Checks synchronize offline from the committed lock, check dependency consistency,
 run Ruff lint and formatting checks, import the required packages, exercise
-`harbor --help` and `inspect --help`, and run the doctor. Framework probes receive
-no API credentials; dotenv loading and Harbor telemetry are disabled. Docker
-availability is informational. No external service is needed after installation.
+`harbor --help` and `inspect --help`, and run the doctor. The doctor checks exact
+versions against `uv.lock`, imports `inspect_harbor` and its public `harbor`,
+`harbor_scorer` and `oracle` entry points, and discovers and loads its Inspect
+plugin through package metadata. It never calls task, scorer or solver factories.
+Framework probes receive no API credentials; dotenv loading and framework
+telemetry are disabled. Docker availability is informational. No external service
+is needed after installation.
 
 Other local commands, from the repository root:
 
@@ -60,17 +69,19 @@ pytest is installed and configured for future substantive tests under `tests/`.
 When those tests exist, run `.venv/bin/python -m pytest`. The bootstrap has no
 test suite and does not count an empty suite as validation.
 
-| Component | Pinned version |
+| Component | Locked version |
 | --- | --- |
 | Python | 3.12.16 |
 | uv | 0.13.7 |
 | Harbor | 0.25.0 |
 | Inspect (`inspect-ai`) | 0.3.287 |
+| Bridge (`inspect-harbor`) | 1.0.0 |
 | pytest | 9.2.0 |
 | Ruff | 0.17.3 |
 
 The dependency-only project has no distributable package or application API.
-`uv.lock` records transitive dependencies. See [stack notes](docs/stack.md) for
+`inspect-harbor>=1.0` is the manifest constraint; `uv.lock` fixes its exact release
+and all transitive dependencies. See [stack notes](docs/stack.md) for
 official references, the deferred training path and Conductor settings.
 
 ## Research and data boundaries
