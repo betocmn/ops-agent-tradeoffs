@@ -13,7 +13,7 @@ require_uv
 probe() {
     env -i HOME="$HOME" PATH="$REPO_ROOT/.venv/bin:$PATH" \
         HARBOR_TELEMETRY=off LITELLM_LOCAL_MODEL_COST_MAP=True \
-        PYTHON_DOTENV_DISABLED=1 HF_HUB_OFFLINE=1 \
+        INSPECT_HARBOR_NO_TELEMETRY=1 PYTHON_DOTENV_DISABLED=1 HF_HUB_OFFLINE=1 \
         "$@"
 }
 
@@ -22,4 +22,4 @@ probe .venv/bin/harbor --help >/dev/null
 echo "Harbor CLI help: OK"
 probe .venv/bin/inspect --help >/dev/null
 echo "Inspect CLI help: OK"
-echo "Installation checks passed. No evaluation or training was run."
+echo "Package and plugin installation checks passed. No task evaluation or training was run."

@@ -11,7 +11,33 @@ import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-MODULES = {"harbor": "harbor", "inspect-ai": "inspect_ai", "pytest": "pytest", "ruff": "ruff"}
+MODULES = {
+    "harbor": "harbor",
+    "inspect-ai": "inspect_ai",
+    "inspect-harbor": "inspect_harbor",
+    "pytest": "pytest",
+    "ruff": "ruff",
+}
+
+
+def inspect_harbor_status() -> bool:
+    """Verify public exports and plugin registration without calling task factories."""
+    try:
+        bridge = importlib.import_module("inspect_harbor")
+        for name in ("harbor", "harbor_scorer", "oracle"):
+            if not callable(getattr(bridge, name, None)):
+                print(f"ERROR: inspect_harbor.{name} is missing or not callable")
+                return False
+        entries = tuple(importlib.metadata.entry_points(group="inspect_ai", name="inspect_harbor"))
+        if len(entries) != 1 or entries[0].value != "inspect_harbor._registry":
+            print("ERROR: inspect_harbor Inspect plugin entry point is missing or incorrect")
+            return False
+        entries[0].load()
+    except Exception as error:
+        print(f"ERROR: Inspect Harbor plugin check failed ({type(error).__name__})")
+        return False
+    print("Inspect Harbor: public exports and Inspect plugin entry point verified")
+    return True
 
 
 def docker_status() -> None:
@@ -53,19 +79,23 @@ def docker_status() -> None:
 def main() -> int:
     os.environ.update(
         HARBOR_TELEMETRY="off",
+        INSPECT_HARBOR_NO_TELEMETRY="1",
+        HF_HUB_OFFLINE="1",
         LITELLM_LOCAL_MODEL_COST_MAP="True",
         PYTHON_DOTENV_DISABLED="1",
     )
     try:
         expected_python = (ROOT / ".python-version").read_text().strip()
-        with (ROOT / "pyproject.toml").open("rb") as source:
-            project = tomllib.load(source)
-        requirements = project["project"]["dependencies"] + project["dependency-groups"]["dev"]
-        versions = dict(requirement.split("==", 1) for requirement in requirements)
-        if not MODULES.keys() <= versions.keys():
-            raise ValueError("Required packages must have exact version pins")
+        with (ROOT / "uv.lock").open("rb") as source:
+            lock = tomllib.load(source)
+        versions = {}
+        for name in MODULES:
+            matches = [entry["version"] for entry in lock["package"] if entry["name"] == name]
+            if len(matches) != 1 or not isinstance(matches[0], str) or not matches[0]:
+                raise ValueError("Required package lock record is missing or ambiguous")
+            versions[name] = matches[0]
     except (OSError, ValueError, KeyError, TypeError):
-        print("ERROR: cannot read exact Python and dependency pins from repository configuration")
+        print("ERROR: cannot read exact Python and unambiguous dependency versions from uv.lock")
         return 1
 
     actual_python = platform.python_version()
@@ -86,6 +116,7 @@ def main() -> int:
             print(f"ERROR: {module} import failed ({type(error).__name__})")
             failures = True
 
+    failures |= not inspect_harbor_status()
     docker_status()
     print("Installation: FAILED" if failures else "Installation: ready; no evaluation performed")
     return int(failures)

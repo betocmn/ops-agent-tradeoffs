@@ -6,6 +6,7 @@ requires-python = ">=3.12,<3.13"
 dependencies = [
     "harbor==0.25.0",
     "inspect-ai==0.3.287",
+    "inspect-harbor>=1.0",
 ]
 
 [dependency-groups]

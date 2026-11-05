@@ -18,5 +18,7 @@ jobs:
         run: bash scripts/setup.sh
       - name: Verify idempotent setup
         run: bash scripts/setup.sh
-      - name: Check installation without API credentials
+      - name: Check packages, plugin, and CLIs without API credentials
         run: bash scripts/check.sh
+      - name: Verify the committed lockfile is unchanged
+        run: git diff --exit-code -- uv.lock
