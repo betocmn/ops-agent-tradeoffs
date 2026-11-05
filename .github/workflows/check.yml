@@ -1,0 +1,22 @@
+name: Installation checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned uv, Python, and locked dependencies
+        run: bash scripts/setup.sh
+      - name: Verify idempotent setup
+        run: bash scripts/setup.sh
+      - name: Check installation without API credentials
+        run: bash scripts/check.sh
